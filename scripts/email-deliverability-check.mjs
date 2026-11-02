@@ -1,0 +1,5 @@
+import {resolveTxt} from 'node:dns/promises';
+const domain=process.argv.slice(2).find(x=>!x.startsWith('-'))||'example.com',offline=process.argv.includes('--offline');
+const result={domain,checkedAt:new Date().toISOString(),mode:offline?'offline':'dns',checks:{spf:'unknown',dkim:'requires_selector',dmarc:'unknown',unsubscribe:'implemented',bounceWebhook:'implemented',complaintWebhook:'implemented',suppressionList:'implemented',ipWarmup:'operator_required'},ready:false};
+if(!offline){try{const txt=(await resolveTxt(domain)).flat().join(' ');result.checks.spf=txt.includes('v=spf1')?'pass':'missing'}catch{result.checks.spf='dns_error'}try{const txt=(await resolveTxt(`_dmarc.${domain}`)).flat().join(' ');result.checks.dmarc=txt.includes('v=DMARC1')?'pass':'missing'}catch{result.checks.dmarc='dns_error'}}
+result.ready=result.checks.spf==='pass'&&result.checks.dmarc==='pass'&&result.checks.dkim==='pass';console.log(JSON.stringify(result,null,2));if(!result.ready)console.log('\nNOT READY: configure SPF, DKIM selector and DMARC, then run again. This script does not certify inbox placement.');

@@ -1,0 +1,2 @@
+# Every day at 02:15 UTC. Use a distributed lock in production so only one replica runs.
+15 2 * * * cd /app && node scripts/update-insights.mjs >> /var/log/globalreach-insights-update.log 2>&1

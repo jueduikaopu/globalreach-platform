@@ -1,0 +1,2 @@
+import {mkdir,readFile,writeFile} from 'node:fs/promises';import {dirname} from 'node:path';import {generateMockTradeData} from '../../../packages/insights/src/mock-generator.mjs';import {InsightsService} from '../../../packages/insights/src/service.mjs';
+export async function loadInsights(file,options={}){let data;try{data=JSON.parse(await readFile(file,'utf8'))}catch(e){if(e.code!=='ENOENT')throw e;data=generateMockTradeData(options);await mkdir(dirname(file),{recursive:true});await writeFile(file,JSON.stringify(data))}return new InsightsService(data)}

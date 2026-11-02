@@ -1,0 +1,35 @@
+BEGIN;
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+CREATE EXTENSION IF NOT EXISTS citext;
+CREATE TYPE member_role AS ENUM ('platform_admin','tenant_admin','teacher','student','operator','viewer');
+CREATE TYPE order_status AS ENUM ('draft','pending','paid','fulfilled','cancelled','refunded');
+
+CREATE TABLE tenants (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), name text NOT NULL, slug text UNIQUE NOT NULL, default_locale text NOT NULL DEFAULT 'en', default_currency char(3) NOT NULL DEFAULT 'USD', timezone text NOT NULL DEFAULT 'UTC', created_at timestamptz NOT NULL DEFAULT now());
+CREATE TABLE users (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), email citext UNIQUE NOT NULL, name text NOT NULL, password_hash text NOT NULL, status text NOT NULL DEFAULT 'active', created_at timestamptz NOT NULL DEFAULT now());
+CREATE TABLE tenant_memberships (tenant_id uuid REFERENCES tenants ON DELETE CASCADE, user_id uuid REFERENCES users ON DELETE CASCADE, role member_role NOT NULL, created_at timestamptz NOT NULL DEFAULT now(), PRIMARY KEY (tenant_id,user_id));
+CREATE TABLE stores (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), tenant_id uuid NOT NULL REFERENCES tenants, name text NOT NULL, slug text NOT NULL, primary_domain text, locale text NOT NULL DEFAULT 'en', currency char(3) NOT NULL DEFAULT 'USD', timezone text NOT NULL DEFAULT 'UTC', status text NOT NULL DEFAULT 'draft', created_at timestamptz NOT NULL DEFAULT now(), UNIQUE(tenant_id,slug));
+CREATE TABLE site_templates (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), tenant_id uuid REFERENCES tenants, name text NOT NULL, version int NOT NULL DEFAULT 1, schema_json jsonb NOT NULL DEFAULT '{}', is_public boolean NOT NULL DEFAULT false, created_at timestamptz NOT NULL DEFAULT now());
+CREATE TABLE products (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), tenant_id uuid NOT NULL REFERENCES tenants, store_id uuid NOT NULL REFERENCES stores, sku text NOT NULL, title jsonb NOT NULL, description jsonb NOT NULL DEFAULT '{}', price_minor bigint NOT NULL CHECK(price_minor>=0), currency char(3) NOT NULL, inventory int NOT NULL DEFAULT 0, status text NOT NULL DEFAULT 'draft', created_at timestamptz NOT NULL DEFAULT now(), UNIQUE(store_id,sku));
+CREATE TABLE customers (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), tenant_id uuid NOT NULL REFERENCES tenants, email text, company text, name text, country_code char(2), lifecycle_stage text NOT NULL DEFAULT 'lead', owner_id uuid REFERENCES users, metadata jsonb NOT NULL DEFAULT '{}', created_at timestamptz NOT NULL DEFAULT now());
+CREATE TABLE orders (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), tenant_id uuid NOT NULL REFERENCES tenants, store_id uuid NOT NULL REFERENCES stores, customer_id uuid REFERENCES customers, order_no text NOT NULL, status order_status NOT NULL DEFAULT 'pending', total_minor bigint NOT NULL CHECK(total_minor>=0), currency char(3) NOT NULL, placed_at timestamptz, created_at timestamptz NOT NULL DEFAULT now(), UNIQUE(tenant_id,order_no));
+CREATE TABLE inquiries (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), tenant_id uuid NOT NULL REFERENCES tenants, store_id uuid REFERENCES stores, customer_id uuid REFERENCES customers, subject text NOT NULL, content text NOT NULL, source text NOT NULL, status text NOT NULL DEFAULT 'new', created_at timestamptz NOT NULL DEFAULT now());
+CREATE TABLE email_campaigns (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), tenant_id uuid NOT NULL REFERENCES tenants, name text NOT NULL, subject text NOT NULL, status text NOT NULL DEFAULT 'draft', scheduled_at timestamptz, provider_ref text, stats jsonb NOT NULL DEFAULT '{}', created_at timestamptz NOT NULL DEFAULT now());
+CREATE TABLE social_accounts (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), tenant_id uuid NOT NULL REFERENCES tenants, platform text NOT NULL, external_account_id text NOT NULL, display_name text, secret_ref text NOT NULL, status text NOT NULL DEFAULT 'pending', created_at timestamptz NOT NULL DEFAULT now(), UNIQUE(tenant_id,platform,external_account_id));
+CREATE TABLE customs_queries (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), tenant_id uuid NOT NULL REFERENCES tenants, user_id uuid NOT NULL REFERENCES users, query_json jsonb NOT NULL, result_count int NOT NULL DEFAULT 0, provider text NOT NULL, created_at timestamptz NOT NULL DEFAULT now());
+CREATE TABLE training_projects (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), tenant_id uuid NOT NULL REFERENCES tenants, name text NOT NULL, school_term text, starts_on date, ends_on date, status text NOT NULL DEFAULT 'draft', created_at timestamptz NOT NULL DEFAULT now());
+CREATE TABLE training_plans (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), tenant_id uuid NOT NULL REFERENCES tenants, project_id uuid NOT NULL REFERENCES training_projects, title text NOT NULL, content jsonb NOT NULL DEFAULT '{}', due_at timestamptz, created_at timestamptz NOT NULL DEFAULT now());
+CREATE TABLE tickets (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), tenant_id uuid NOT NULL REFERENCES tenants, project_id uuid REFERENCES training_projects, requester_id uuid NOT NULL REFERENCES users, assignee_id uuid REFERENCES users, title text NOT NULL, description text NOT NULL, priority text NOT NULL DEFAULT 'normal', status text NOT NULL DEFAULT 'open', due_at timestamptz, created_at timestamptz NOT NULL DEFAULT now());
+CREATE TABLE bonus_records (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), tenant_id uuid NOT NULL REFERENCES tenants, project_id uuid NOT NULL REFERENCES training_projects, user_id uuid NOT NULL REFERENCES users, amount_minor bigint NOT NULL CHECK(amount_minor>=0), currency char(3) NOT NULL DEFAULT 'CNY', reason text NOT NULL, status text NOT NULL DEFAULT 'pending', approved_by uuid REFERENCES users, created_at timestamptz NOT NULL DEFAULT now());
+CREATE TABLE audit_logs (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), tenant_id uuid NOT NULL REFERENCES tenants, actor_id uuid REFERENCES users, action text NOT NULL, resource_type text, resource_id uuid, ip inet, user_agent text, metadata jsonb NOT NULL DEFAULT '{}', created_at timestamptz NOT NULL DEFAULT now());
+
+CREATE INDEX idx_products_tenant_store ON products(tenant_id,store_id);
+CREATE INDEX idx_customers_tenant_stage ON customers(tenant_id,lifecycle_stage);
+CREATE INDEX idx_orders_tenant_created ON orders(tenant_id,created_at DESC);
+CREATE INDEX idx_audit_tenant_created ON audit_logs(tenant_id,created_at DESC);
+
+ALTER TABLE stores ENABLE ROW LEVEL SECURITY; ALTER TABLE products ENABLE ROW LEVEL SECURITY; ALTER TABLE customers ENABLE ROW LEVEL SECURITY; ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
+CREATE POLICY tenant_stores ON stores USING (tenant_id = current_setting('app.tenant_id', true)::uuid);
+CREATE POLICY tenant_products ON products USING (tenant_id = current_setting('app.tenant_id', true)::uuid);
+CREATE POLICY tenant_customers ON customers USING (tenant_id = current_setting('app.tenant_id', true)::uuid);
+CREATE POLICY tenant_orders ON orders USING (tenant_id = current_setting('app.tenant_id', true)::uuid);
+COMMIT;

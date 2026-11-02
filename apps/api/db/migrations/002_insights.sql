@@ -1,0 +1,12 @@
+BEGIN;
+CREATE TABLE countries (code text PRIMARY KEY, name text NOT NULL, region text);
+CREATE TABLE hs_products (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), hs_code char(6) NOT NULL, name text NOT NULL, category text, metadata jsonb NOT NULL DEFAULT '{}');
+CREATE INDEX idx_hs_products_code ON hs_products(hs_code text_pattern_ops);
+CREATE TABLE buyers (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), name text NOT NULL, country_code text REFERENCES countries, address text, phone text, website text, employee_range text, categories text[], profile jsonb NOT NULL DEFAULT '{}');
+CREATE TABLE bills_of_lading (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), bill_no text UNIQUE NOT NULL, buyer_id uuid NOT NULL REFERENCES buyers, supplier_name text, shipped_on date NOT NULL, origin_country text, destination_country text, raw_payload jsonb NOT NULL DEFAULT '{}');
+CREATE TABLE trade_records (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), bill_id uuid REFERENCES bills_of_lading, buyer_id uuid NOT NULL REFERENCES buyers, product_id uuid NOT NULL REFERENCES hs_products, tenant_scope text, quantity numeric(20,4), weight_kg numeric(20,4), value_usd numeric(20,2), traded_on date NOT NULL);
+CREATE INDEX idx_trade_buyer_date ON trade_records(buyer_id,traded_on DESC); CREATE INDEX idx_trade_product_date ON trade_records(product_id,traded_on DESC);
+CREATE TABLE insight_favorites (tenant_id uuid NOT NULL REFERENCES tenants, user_id uuid NOT NULL REFERENCES users, buyer_id uuid NOT NULL REFERENCES buyers, created_at timestamptz NOT NULL DEFAULT now(), PRIMARY KEY(tenant_id,user_id,buyer_id));
+CREATE TABLE insight_exports (id uuid PRIMARY KEY DEFAULT gen_random_uuid(), tenant_id uuid NOT NULL REFERENCES tenants, user_id uuid NOT NULL REFERENCES users, status text NOT NULL DEFAULT 'queued', filters jsonb NOT NULL, object_key text, row_count int, created_at timestamptz NOT NULL DEFAULT now(), completed_at timestamptz);
+CREATE TABLE data_source_checkpoints (source_id text PRIMARY KEY, cursor text, last_event_at timestamptz, rows_imported bigint NOT NULL DEFAULT 0, updated_at timestamptz NOT NULL DEFAULT now());
+COMMIT;

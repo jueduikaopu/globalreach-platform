@@ -1,0 +1,21 @@
+{
+  "name": "globalreach-platform",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "workspaces": ["apps/*", "packages/*"],
+  "scripts": {
+    "dev": "node apps/api/src/server.mjs",
+    "start": "node apps/api/src/server.mjs",
+    "build": "node scripts/build.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "check": "node scripts/check.mjs",
+    "load-test": "node scripts/load-test.mjs",
+    "rto-drill": "node scripts/rto-drill.mjs"
+    ,"insights:generate": "node scripts/generate-insights-mock.mjs"
+    ,"insights:import": "node scripts/import-trade-data.mjs"
+    ,"insights:update": "node scripts/update-insights.mjs"
+    ,"email:check": "node scripts/email-deliverability-check.mjs"
+  },
+  "engines": {"node": ">=20"}
+}

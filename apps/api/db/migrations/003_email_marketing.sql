@@ -1,0 +1,6 @@
+CREATE TABLE email_accounts (id uuid PRIMARY KEY, tenant_id uuid NOT NULL, provider text NOT NULL, email text NOT NULL, auth_mode text NOT NULL, secret_ref text NOT NULL, config jsonb NOT NULL, created_at timestamptz NOT NULL DEFAULT now());
+CREATE TABLE email_campaigns_v2 (id uuid PRIMARY KEY, tenant_id uuid NOT NULL, subject text NOT NULL, html text NOT NULL, blocks jsonb NOT NULL, status text NOT NULL, schedule_at timestamptz, timezone text NOT NULL, created_at timestamptz NOT NULL DEFAULT now());
+CREATE TABLE email_messages (id uuid PRIMARY KEY, campaign_id uuid NOT NULL, tenant_id uuid NOT NULL, recipient text NOT NULL, status text NOT NULL, attempt int NOT NULL DEFAULT 0, accepted_at timestamptz);
+CREATE TABLE email_events (id uuid PRIMARY KEY, message_id uuid NOT NULL, event_type text NOT NULL, metadata jsonb NOT NULL DEFAULT '{}', occurred_at timestamptz NOT NULL DEFAULT now());
+CREATE TABLE email_suppressions (tenant_id uuid NOT NULL, email text NOT NULL, reason text NOT NULL, created_at timestamptz NOT NULL DEFAULT now(), PRIMARY KEY(tenant_id,email));
+CREATE TABLE email_automations (id uuid PRIMARY KEY, tenant_id uuid NOT NULL, trigger_type text NOT NULL, conditions jsonb NOT NULL, action jsonb NOT NULL, timezone text NOT NULL, enabled boolean NOT NULL DEFAULT true);
