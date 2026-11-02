@@ -2,7 +2,7 @@
 
 跨境电商独立站 SaaS + 院校创新创业实训支撑系统的生产级架构基线与可运行脚手架。当前版本实现注册、登录、租户隔离、RBAC 基础、健康检查、统一错误、结构化日志、审计记录及可静态部署的预渲染首页；未把外部 Mock 或设计目标冒充生产达标。
 
-## 一键启动
+## 如何打开网站
 
 要求 Node.js 20+，无需安装依赖：
 
@@ -11,7 +11,34 @@ cd /Users/harry/Documents/ChatGPT/创/sites/globalreach-platform
 ./scripts/dev.sh
 ```
 
-打开 `http://localhost:4100`，注册后进入 `http://localhost:4100/admin`。开发数据写入 `.data/dev-db.json`。
+终端出现 `server_started` 后，不要关闭该终端；在浏览器打开：
+
+| 页面 | 本地地址 |
+|---|---|
+| 平台首页/注册登录 | [http://localhost:4100/](http://localhost:4100/) |
+| 管理台 | [http://localhost:4100/admin/](http://localhost:4100/admin/) |
+| 独立站模板市场 | [http://localhost:4100/admin/templates.html](http://localhost:4100/admin/templates.html) |
+| 全球商机洞察 | [http://localhost:4100/admin/insights.html](http://localhost:4100/admin/insights.html) |
+| 智能邮件营销 | [http://localhost:4100/admin/email.html](http://localhost:4100/admin/email.html) |
+| 社交媒体营销 | [http://localhost:4100/admin/social.html](http://localhost:4100/admin/social.html) |
+| 品牌影响力 | [http://localhost:4100/admin/brand.html](http://localhost:4100/admin/brand.html) |
+| 客户关系 CRM | [http://localhost:4100/admin/crm.html](http://localhost:4100/admin/crm.html) |
+| 院校创新创业实训 | [http://localhost:4100/admin/training.html](http://localhost:4100/admin/training.html) |
+| 端到端上线验收 | [http://localhost:4100/admin/acceptance.html](http://localhost:4100/admin/acceptance.html) |
+
+首次使用先在首页注册；同一浏览器会保存本地登录状态。开发数据写入 `.data/dev-db.json`。停止网站时回到启动终端按 `Control + C`。
+
+如果提示端口被占用，可改用其他端口：
+
+```bash
+PORT=4200 APP_ORIGIN=http://localhost:4200 ./scripts/dev.sh
+```
+
+随后将上述地址中的 `4100` 改为 `4200`。
+
+## 在线查看源代码
+
+公开 GitHub 仓库：[jueduikaopu/globalreach-platform](https://github.com/jueduikaopu/globalreach-platform)。GitHub 用于查看和下载源代码；当前仓库没有配置公网演示域名，因此可交互网站需要按上述命令在本机启动。
 
 ## 自测与静态构建
 
