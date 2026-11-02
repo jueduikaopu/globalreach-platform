@@ -1,0 +1,10 @@
+CREATE TABLE training_semester_projects (id UUID PRIMARY KEY, tenant_id UUID NOT NULL, name TEXT NOT NULL, starts_at DATE NOT NULL, ends_at DATE NOT NULL, status TEXT NOT NULL);
+CREATE TABLE training_teams (id UUID PRIMARY KEY, tenant_id UUID NOT NULL, project_id UUID NOT NULL, name TEXT NOT NULL, output_amount NUMERIC(14,2) DEFAULT 0);
+CREATE TABLE training_members (id UUID PRIMARY KEY, tenant_id UUID NOT NULL, team_id UUID NOT NULL, student_no TEXT NOT NULL, name TEXT NOT NULL, user_id UUID, UNIQUE(tenant_id,student_no));
+CREATE TABLE training_social_account_pool (id UUID PRIMARY KEY, tenant_id UUID NOT NULL, platform TEXT NOT NULL, handle TEXT NOT NULL, team_id UUID, status TEXT NOT NULL, opened_at TIMESTAMPTZ, expires_at TIMESTAMPTZ);
+CREATE TABLE training_account_requests (id UUID PRIMARY KEY, tenant_id UUID NOT NULL, team_id UUID NOT NULL, account_id UUID NOT NULL, status TEXT NOT NULL, reason TEXT, reviewed_by UUID);
+CREATE TABLE training_network_environments (id UUID PRIMARY KEY, tenant_id UUID NOT NULL, member_id UUID NOT NULL, provider TEXT, configuration JSONB NOT NULL DEFAULT '{}', status TEXT NOT NULL, starts_at TIMESTAMPTZ, expires_at TIMESTAMPTZ);
+CREATE TABLE training_courses (id UUID PRIMARY KEY, tenant_id UUID NOT NULL, project_id UUID NOT NULL, title TEXT NOT NULL, scheduled_at TIMESTAMPTZ, expert_name TEXT, material_url TEXT);
+CREATE TABLE training_attendance (id UUID PRIMARY KEY, tenant_id UUID NOT NULL, course_id UUID NOT NULL, member_id UUID NOT NULL, present BOOLEAN NOT NULL, signed_at TIMESTAMPTZ);
+CREATE TABLE training_work_orders (id UUID PRIMARY KEY, tenant_id UUID NOT NULL, project_id UUID NOT NULL, team_id UUID, title TEXT NOT NULL, description TEXT, difficulty TEXT, reward NUMERIC(12,2), deadline TIMESTAMPTZ, acceptance_criteria TEXT, status TEXT NOT NULL, submission TEXT, score NUMERIC(5,2));
+CREATE TABLE training_bonus_records (id UUID PRIMARY KEY, tenant_id UUID NOT NULL, work_order_id UUID NOT NULL, team_id UUID NOT NULL, amount NUMERIC(12,2) NOT NULL, status TEXT NOT NULL, settlement_term TEXT NOT NULL);

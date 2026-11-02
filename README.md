@@ -89,6 +89,8 @@ psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f apps/api/db/migrations/001_init.sql
 - [全球商机洞察、海关数据接入、检索与导出](docs/INSIGHTS.md)
 - [社交媒体营销、官方 API 适配边界与 Mock 验收](docs/SOCIAL_MARKETING.md)
 - [品牌内容复用、多渠道分发与声量归因](docs/BRAND_INFLUENCE.md)
+- [统一客户主档、查重、公海与销售漏斗](docs/CRM.md)
+- [院校项目、账号池、培训、工单与奖金结算](docs/TRAINING_SUPPORT.md)
 
 ## 性能与基础设施命令
 

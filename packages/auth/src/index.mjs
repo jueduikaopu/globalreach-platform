@@ -29,7 +29,8 @@ export function can(role, permission) {
   const grants = {
     platform_admin: ['*'], tenant_admin: ['tenant:read', 'tenant:write', 'member:write', 'store:write'],
     teacher: ['tenant:read', 'training:write', 'ticket:write'], student: ['tenant:read', 'store:write'],
-    operator: ['tenant:read', 'store:write', 'crm:write'], viewer: ['tenant:read']
+    crm_manager: ['tenant:read', 'crm:read_all', 'crm:write'], sales: ['tenant:read', 'crm:read_own', 'crm:write'],
+    operator: ['tenant:read', 'store:write', 'crm:read_own', 'crm:write'], viewer: ['tenant:read']
   };
   return grants[role]?.includes('*') || grants[role]?.includes(permission);
 }
