@@ -1,0 +1,16 @@
+import {createHash,randomUUID} from 'node:crypto';
+
+export const platforms={facebook:{name:'Facebook',oauth:'https://www.facebook.com/dialog/oauth',api:'Graph API'},linkedin:{name:'LinkedIn',oauth:'https://www.linkedin.com/oauth/v2/authorization',api:'Marketing API'},youtube:{name:'YouTube',oauth:'https://accounts.google.com/o/oauth2/v2/auth',api:'YouTube Data API'}};
+export const locales=['en','es','ru','ja','de','fr','pt','ar'];
+export const holidayCalendar=[
+  {id:'valentine',date:'2027-02-14',name:'情人节',topic:'#ValentinesDay',template:'把爱送到世界每个角落。为你精选的礼物已经准备好。'},
+  {id:'prime-day',date:'2027-07-13',name:'Prime Day',topic:'#PrimeDay',template:'限时精选与全球热卖正在进行，别错过今天的惊喜。'},
+  {id:'thanksgiving',date:'2027-11-25',name:'感恩节',topic:'#Thanksgiving',template:'感谢每一次信任与同行，愿温暖与你相伴。'},
+  {id:'black-friday',date:'2027-11-26',name:'黑色星期五',topic:'#BlackFriday',template:'年度优惠正式开启，热门商品限量供应。'},
+  {id:'christmas',date:'2027-12-25',name:'圣诞节',topic:'#Christmas',template:'把节日喜悦分享给全世界，祝你圣诞快乐。'}
+];
+const dictionaries={es:'Oferta global por tiempo limitado.',ru:'Глобальное предложение ограничено по времени.',ja:'期間限定のグローバルオファーです。',de:'Globales Angebot für kurze Zeit.',fr:'Offre mondiale à durée limitée.',pt:'Oferta global por tempo limitado.',ar:'عرض عالمي لفترة محدودة.'};
+export function mockTranslate(text,locale){return locale==='en'?text:`[${locale.toUpperCase()} Mock] ${dictionaries[locale]||text}`}
+export function createMockAccount({tenantId,platform,name}){if(!platforms[platform])throw Object.assign(new Error('UNSUPPORTED_PLATFORM'),{status:422});return{id:randomUUID(),tenantId,platform,name:name||`${platforms[platform].name} Demo`,externalId:`mock_${platform}_${Date.now()}`,status:'healthy',authMode:'mock_oauth',tokenRef:`secret://social/${randomUUID()}`,followers:Math.floor(1200+Math.random()*9000),connectedAt:new Date().toISOString()}}
+export function publishPost({post,accounts,now=new Date()}){const due=!post.scheduleAt||new Date(post.scheduleAt)<=now;if(!due)return{processed:0,status:'scheduled'};post.deliveries=post.accountIds.map(accountId=>{const account=accounts.find(x=>x.id===accountId);const key=createHash('sha256').update(`${post.id}:${accountId}`).digest('hex').slice(0,20);return{idempotencyKey:key,accountId,platform:account?.platform||'unknown',status:account?.status==='healthy'?'published':'retrying',attempt:account?.status==='healthy'?1:2,externalPostId:account?.status==='healthy'?`mock_${key}`:null,publishedAt:account?.status==='healthy'?now.toISOString():null,error:account?.status==='healthy'?null:'ACCOUNT_UNHEALTHY'}});post.status=post.deliveries.every(x=>x.status==='published')?'published':'partial';post.updatedAt=now.toISOString();return{processed:post.deliveries.length,status:post.status}}
+export function mockInbox(tenantId,accounts){const samples=[['comment','Love this product! Can you ship to Germany?'],['direct_message','Could you share the wholesale price list?'],['comment','Is this available in blue?'],['direct_message','We want to become a distributor.']];return accounts.flatMap((a,i)=>samples.slice(i%2,i%2+2).map(([type,text],j)=>({id:`mock_${a.id}_${j}`,tenantId,accountId:a.id,platform:a.platform,type,sender:`Global Buyer ${i+j+1}`,text,media:j%2?'image':'' ,status:'unread',receivedAt:new Date(Date.now()-(i*2+j)*3600000).toISOString()})))}
