@@ -91,6 +91,11 @@ psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f apps/api/db/migrations/001_init.sql
 - [品牌内容复用、多渠道分发与声量归因](docs/BRAND_INFLUENCE.md)
 - [统一客户主档、查重、公海与销售漏斗](docs/CRM.md)
 - [院校项目、账号池、培训、工单与奖金结算](docs/TRAINING_SUPPORT.md)
+- [端到端联调、性能与安全验收报告](docs/E2E_ACCEPTANCE_REPORT.md)
+- [生产部署手册](docs/PRODUCTION_DEPLOYMENT.md)
+- [环境变量清单](docs/ENVIRONMENT_VARIABLES.md)
+- [管理员操作手册](docs/ADMIN_MANUAL.md)
+- [学生操作手册](docs/STUDENT_MANUAL.md)
 
 ## 性能与基础设施命令
 

@@ -6,3 +6,4 @@ const socialLink=document.createElement('a');socialLink.href='/admin/social.html
 const brandLink=document.createElement('a');brandLink.href='/admin/brand.html';brandLink.textContent='进入品牌影响力建设 →';brandLink.style.cssText=siteLink.style.cssText+';margin-left:24px';socialLink.after(brandLink);
 const crmLink=document.createElement('a');crmLink.href='/admin/crm.html';crmLink.textContent='进入客户关系 CRM →';crmLink.style.cssText=siteLink.style.cssText+';margin-left:24px';brandLink.after(crmLink);
 const trainingLink=document.createElement('a');trainingLink.href='/admin/training.html';trainingLink.textContent='进入院校创新创业实训 →';trainingLink.style.cssText=siteLink.style.cssText+';margin-left:24px';crmLink.after(trainingLink);
+const acceptanceLink=document.createElement('a');acceptanceLink.href='/admin/acceptance.html';acceptanceLink.textContent='查看端到端上线验收 →';acceptanceLink.style.cssText=siteLink.style.cssText+';margin-left:24px';trainingLink.after(acceptanceLink);
