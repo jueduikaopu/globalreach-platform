@@ -96,6 +96,7 @@ psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f apps/api/db/migrations/001_init.sql
 - [环境变量清单](docs/ENVIRONMENT_VARIABLES.md)
 - [管理员操作手册](docs/ADMIN_MANUAL.md)
 - [学生操作手册](docs/STUDENT_MANUAL.md)
+- [外部依赖、真实资源采购清单与二期路线图](docs/EXTERNAL_DEPENDENCIES_AND_ROADMAP.md)
 
 ## 性能与基础设施命令
 
