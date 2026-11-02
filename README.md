@@ -23,6 +23,16 @@ npm run build
 
 构建结果位于 `dist/web` 和 `dist/admin`。首页是预渲染 HTML，可直接部署到 CDN/对象存储；生产版建议迁移为 Next.js SSG/ISR，页面契约保持不变。
 
+## 页面完成后发布到 GitHub
+
+仓库级交付规则见 `AGENTS.md`。页面通过验证后运行：
+
+```bash
+npm run ship -- "feat: describe the completed page"
+```
+
+该命令依次执行测试、交付物检查、暂存、提交并推送到 `origin/main`；工作区无变更时不会创建空提交。提交前仍应检查 `git status --short`，避免混入无关文件。
+
 ## 仓库结构
 
 ```text

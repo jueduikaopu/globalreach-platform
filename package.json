@@ -16,6 +16,7 @@
     ,"insights:import": "node scripts/import-trade-data.mjs"
     ,"insights:update": "node scripts/update-insights.mjs"
     ,"email:check": "node scripts/email-deliverability-check.mjs"
+    ,"ship": "sh scripts/ship.sh"
   },
   "engines": {"node": ">=20"}
 }
