@@ -3,3 +3,4 @@ const siteLink=document.createElement('a');siteLink.href='/admin/templates.html'
 const insightLink=document.createElement('a');insightLink.href='/admin/insights.html';insightLink.textContent='进入全球商机洞察 →';insightLink.style.cssText=siteLink.style.cssText+';margin-left:24px';siteLink.after(insightLink);
 const emailLink=document.createElement('a');emailLink.href='/admin/email.html';emailLink.textContent='进入智能邮件营销 →';emailLink.style.cssText=siteLink.style.cssText+';margin-left:24px';insightLink.after(emailLink);
 const socialLink=document.createElement('a');socialLink.href='/admin/social.html';socialLink.textContent='进入社交媒体营销 →';socialLink.style.cssText=siteLink.style.cssText+';margin-left:24px';emailLink.after(socialLink);
+const brandLink=document.createElement('a');brandLink.href='/admin/brand.html';brandLink.textContent='进入品牌影响力建设 →';brandLink.style.cssText=siteLink.style.cssText+';margin-left:24px';socialLink.after(brandLink);
